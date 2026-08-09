@@ -1,0 +1,22 @@
+{
+  "name": "Byzantine",
+  "short_name": "Byzantine",
+  "description": "Parish fellowship hub for Ss. George & Alexandria",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#120d07",
+  "background_color": "#120d07",
+  "icons": [
+    {
+      "src": "/icon-128.png",
+      "sizes": "128x128",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-256.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    }
+  ]
+}

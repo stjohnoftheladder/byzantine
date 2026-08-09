@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="description" content="Byzantine — parish fellowship hub for Ss. George &amp; Alexandria">
+  <meta name="theme-color" content="#120d07">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 60'><rect x='13' y='8' width='14' height='2.5' rx='0.4' fill='%23f3d276'/><rect x='18.5' y='3' width='3' height='54' rx='0.5' fill='%23f3d276'/><rect x='4' y='18' width='32' height='3.5' rx='0.5' fill='%23f3d276'/></svg>">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <title>Byzantine | Parish Hub</title>
+  <link rel="stylesheet" href="/src/style.css">
+</head>
+<body>
+  <!-- Welcome / onboarding overlay -->
+  <div id="welcome" class="welcome-overlay" role="dialog" aria-label="Welcome to Byzantine">
+    <div class="welcome-card">
+      <h1 class="welcome-title">Byzantine</h1>
+      <p class="welcome-subtitle">Ss. George &amp; Alexandra Parish Hub</p>
+      <form id="pilgrim-form" class="welcome-form">
+        <label for="pilgrim-name" class="welcome-label">Your name</label>
+        <input id="pilgrim-name" name="name" type="text" autocomplete="name" required
+               placeholder="e.g. Mark" maxlength="16" aria-describedby="name-hint" class="welcome-input">
+        <p id="name-hint" class="welcome-hint">First name is all we need.</p>
+        <div class="welcome-parish">Home parish: <strong>Ss. George &amp; Alexandria</strong></div>
+        <button type="submit" class="welcome-btn">Enter the Hub</button>
+        <button id="continue-button" type="button" class="welcome-btn welcome-btn--secondary" hidden>Continue as …</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Game container -->
+  <div id="game-view" hidden>
+    <div id="game-container" class="game-container"></div>
+
+    <!-- Points HUD -->
+    <div id="points-hud" class="points-hud" aria-live="polite">
+      <span id="points-value">0</span>
+      <span class="points-label">pts</span>
+    </div>
+
+    <!-- Host controls -->
+    <div id="host-controls" class="host-controls" hidden>
+      <button id="grant-parish-meet-btn" class="btn btn-outline btn-small">Grant Parish Meet Points</button>
+    </div>
+
+    <!-- Player card overlay (shown on sprite tap) -->
+    <div id="player-card" class="player-card" hidden role="dialog" aria-label="Player info">
+      <button id="card-close" class="card-close" aria-label="Close">&times;</button>
+      <div id="card-name" class="card-name"></div>
+      <div id="card-parish" class="card-parish"></div>
+      <button id="card-wave" class="card-wave">Wave</button>
+    </div>
+
+    <!-- Video invite dialog -->
+    <dialog id="video-invite-dialog" class="video-dialog">
+      <h2 id="video-invite-title"></h2>
+      <p id="video-invite-copy"></p>
+      <div class="video-dialog-actions">
+        <button id="video-accept" class="btn btn-primary">Accept</button>
+        <button id="video-decline" class="btn btn-outline">Decline</button>
+      </div>
+    </dialog>
+
+    <!-- Video conversation overlay -->
+    <div id="video-conversation" class="video-conversation" hidden>
+      <div class="video-header">
+        <h2 id="video-title"></h2>
+        <output id="video-timer" class="video-timer" aria-live="off">1:30</output>
+      </div>
+      <p id="video-status" class="video-status"></p>
+      <div id="video-ready">
+        <p id="video-ready-copy"></p>
+        <button id="video-join" class="btn btn-primary">Join conversation</button>
+        <button id="video-cancel" class="btn btn-outline">Leave before joining</button>
+      </div>
+      <div id="video-stage" hidden></div>
+      <div class="video-footer" id="video-footer" hidden>
+        <button id="video-leave" class="btn btn-outline">Leave early</button>
+      </div>
+    </div>
+
+    <!-- System message toast -->
+    <div id="toast" class="toast" hidden aria-live="polite"></div>
+  </div>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

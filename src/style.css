@@ -1,0 +1,475 @@
+/* Byzantine — Parish Hub Styles */
+/* 9:16 portrait column, Byzantine warm tones, pixel-font aesthetic */
+
+@font-face {
+  font-family: 'PixelEmulator';
+  src: url('/assets/fonts/PixelEmulator.ttf') format('truetype');
+  font-display: swap;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Ensure the hidden attribute always works, even against CSS display overrides */
+[hidden] {
+  display: none !important;
+}
+
+:root {
+  --bg: #120d07;
+  --surface: #1a140d;
+  --gold: #f3d276;
+  --gold-dim: #c4a46c;
+  --text: #e8dcc8;
+  --text-dim: #a89878;
+  --accent: #8b6914;
+  --danger: #c44;
+  --radius: 6px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  touch-action: manipulation;
+  user-select: none;
+}
+
+/* ---- Welcome overlay ---- */
+
+.welcome-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  z-index: 100;
+  padding: 16px;
+  padding-top: var(--safe-top);
+  padding-bottom: var(--safe-bottom);
+}
+
+.welcome-overlay[hidden] {
+  display: none;
+}
+
+.welcome-card {
+  width: 100%;
+  max-width: 360px;
+  text-align: center;
+  padding: 32px 24px;
+  background: var(--surface);
+  border: 2px solid var(--gold-dim);
+  border-radius: var(--radius);
+}
+
+.welcome-title {
+  font-family: Georgia, serif;
+  font-size: 32px;
+  color: var(--gold);
+  margin-bottom: 4px;
+}
+
+.welcome-subtitle {
+  font-size: 14px;
+  color: var(--text-dim);
+  margin-bottom: 28px;
+}
+
+.welcome-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.welcome-label {
+  font-size: 13px;
+  color: var(--text-dim);
+  text-align: left;
+}
+
+.welcome-input {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 18px;
+  font-family: Georgia, serif;
+  background: var(--bg);
+  border: 1px solid var(--gold-dim);
+  border-radius: var(--radius);
+  color: var(--text);
+  text-align: center;
+}
+
+.welcome-input:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2px rgba(243, 210, 118, 0.2);
+}
+
+.welcome-hint {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.welcome-parish {
+  font-size: 13px;
+  color: var(--text-dim);
+  padding: 8px;
+  background: rgba(243, 210, 118, 0.06);
+  border-radius: var(--radius);
+}
+
+.welcome-btn {
+  padding: 14px;
+  font-size: 16px;
+  font-family: Georgia, serif;
+  background: var(--gold);
+  color: var(--bg);
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-weight: 600;
+  transition: opacity 0.15s;
+}
+
+.welcome-btn:hover { opacity: 0.9; }
+.welcome-btn:active { opacity: 0.8; }
+
+.welcome-btn--secondary {
+  background: transparent;
+  color: var(--gold);
+  border: 1px solid var(--gold-dim);
+}
+
+/* ---- Game view ---- */
+
+#game-view {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  padding-top: var(--safe-top);
+  padding-bottom: var(--safe-bottom);
+}
+
+.game-container {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  aspect-ratio: 480 / 854;
+  max-height: 100vh;
+  max-height: 100dvh;
+}
+
+.game-container canvas {
+  display: block;
+  border-radius: 2px;
+}
+
+/* ---- Points HUD ---- */
+
+.points-hud {
+  position: fixed;
+  top: calc(12px + var(--safe-top));
+  right: 12px;
+  z-index: 50;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  padding: 4px 10px;
+  background: rgba(18, 13, 7, 0.85);
+  border: 1px solid var(--gold-dim);
+  border-radius: var(--radius);
+  font-family: Georgia, serif;
+}
+
+#points-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--gold);
+}
+
+.points-label {
+  font-size: 11px;
+  color: var(--gold-dim);
+  text-transform: uppercase;
+}
+
+/* ---- Player card overlay ---- */
+
+.player-card {
+  position: fixed;
+  bottom: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 60;
+  min-width: 200px;
+  padding: 16px 20px;
+  background: rgba(26, 20, 13, 0.95);
+  border: 2px solid var(--gold);
+  border-radius: var(--radius);
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.card-close {
+  position: absolute;
+  top: 4px;
+  right: 8px;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 20px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 2px 4px;
+}
+
+.card-name {
+  font-size: 18px;
+  color: var(--gold);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.card-parish {
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-bottom: 12px;
+}
+
+.card-wave {
+  padding: 12px 24px;
+  font-size: 15px;
+  font-family: Georgia, serif;
+  background: var(--accent);
+  color: var(--text);
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.card-wave:hover { opacity: 0.9; }
+.card-wave:active { opacity: 0.8; }
+
+/* ---- Video dialog ---- */
+
+.video-dialog {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  max-width: 360px;
+  padding: 24px;
+  background: var(--surface);
+  border: 2px solid var(--gold-dim);
+  border-radius: var(--radius);
+  color: var(--text);
+  z-index: 80;
+}
+
+.video-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.video-dialog h2 {
+  font-size: 18px;
+  color: var(--gold);
+  margin-bottom: 8px;
+}
+
+.video-dialog p {
+  font-size: 14px;
+  color: var(--text-dim);
+  margin-bottom: 16px;
+}
+
+.video-dialog-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* ---- Video conversation overlay ---- */
+
+.video-conversation {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  padding-top: calc(16px + var(--safe-top));
+  padding-bottom: calc(16px + var(--safe-bottom));
+}
+
+.video-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.video-header h2 {
+  font-size: 18px;
+  color: var(--gold);
+}
+
+.video-timer {
+  font-family: 'Courier New', monospace;
+  font-size: 22px;
+  color: var(--gold);
+  font-weight: 700;
+}
+
+.video-status {
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-bottom: 12px;
+}
+
+#video-ready {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-align: center;
+}
+
+#video-ready p {
+  font-size: 14px;
+  color: var(--text-dim);
+  max-width: 300px;
+}
+
+#video-stage {
+  flex: 1;
+  min-height: 0;
+}
+
+#video-stage iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.video-footer {
+  display: flex;
+  justify-content: center;
+  padding-top: 8px;
+}
+
+/* ---- Buttons ---- */
+
+.btn {
+  padding: 10px 20px;
+  font-size: 14px;
+  font-family: Georgia, serif;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: opacity 0.15s;
+  font-weight: 600;
+}
+
+.btn:hover { opacity: 0.9; }
+.btn:active { opacity: 0.8; }
+.btn:disabled { opacity: 0.4; cursor: default; }
+
+.btn-primary {
+  background: var(--gold);
+  color: var(--bg);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--gold-dim);
+  border: 1px solid var(--gold-dim);
+}
+
+/* ---- Toast ---- */
+
+.toast {
+  position: fixed;
+  bottom: 12%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 90;
+  padding: 10px 20px;
+  background: rgba(26, 20, 13, 0.92);
+  border: 1px solid var(--gold-dim);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 14px;
+  text-align: center;
+  max-width: 320px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.toast--fade {
+  opacity: 1;
+}
+
+/* ---- Host controls ---- */
+
+.host-controls {
+  position: fixed;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+  display: flex;
+  gap: 6px;
+}
+
+.btn-small {
+  padding: 6px 14px;
+  font-size: 12px;
+}
+
+/* ---- Desktop letterbox ---- */
+
+@media (min-width: 500px) {
+  .game-container {
+    border: 2px solid var(--gold-dim);
+    border-radius: 4px;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
+  }
+
+  /* Decorative Byzantine border pattern on desktop */
+  #game-view::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 20px,
+        rgba(243, 210, 118, 0.04) 20px,
+        rgba(243, 210, 118, 0.04) 22px
+      );
+    pointer-events: none;
+    z-index: -1;
+  }
+}
