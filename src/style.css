@@ -411,10 +411,7 @@ html, body {
   text-align: center;
   padding: 32px 24px;
   position: relative;
-  /* Warm parchment surface with subtle grain */
-  background:
-    radial-gradient(ellipse at 50% 0%, rgba(243, 210, 118, 0.08) 0%, transparent 50%),
-    linear-gradient(180deg, #1e180f 0%, var(--surface) 30%, #141008 100%);
+  background: radial-gradient(ellipse at 50% 10%, rgba(243, 210, 118, 0.07) 0%, transparent 60%), var(--surface);
   border: 12px solid transparent;
   border-image: url('/images/o_dialog_bg-sheet0.png') 12 fill round;
   border-radius: 2px;
