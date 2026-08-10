@@ -551,12 +551,12 @@ html, body {
   50% { transform: translateY(-2px); }
 }
 
-/* Attendee avatar */
+/* Attendee avatar — cropped to face/head region of peer sprite (sheet 4,1) */
 .fg-avatar {
   width: 22px;
   height: 22px;
   object-fit: none;
-  object-position: 0 0;
+  object-position: -4px -1px;
   image-rendering: pixelated;
   vertical-align: middle;
   margin-right: 10px;
@@ -849,7 +849,7 @@ html, body {
 
 .fg-nav-icon-people {
   background: url('/images/os_peer-sheet0.png') no-repeat;
-  background-position: 0 0;
+  background-position: -3px -1px;
   background-size: 104px 104px;
 }
 
