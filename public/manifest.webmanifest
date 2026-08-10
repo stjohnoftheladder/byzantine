@@ -1,7 +1,7 @@
 {
-  "name": "Byzantine",
-  "short_name": "Byzantine",
-  "description": "Parish fellowship hub for Ss. George & Alexandria",
+  "name": "Fellowship Go",
+  "short_name": "Fellowship Go",
+  "description": "Connect with your parish and nearby Orthodox Christians",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",
