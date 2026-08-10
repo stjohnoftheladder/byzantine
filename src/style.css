@@ -474,6 +474,7 @@ html, body {
   }
 }
 /* ---- Fellowship Go screens ---- */
+/* Pixel-art visual layer on top of Byzantine DOM styling */
 
 .fg-screen {
   position: fixed;
@@ -491,14 +492,16 @@ html, body {
 
 .fg-screen[hidden] { display: none !important; }
 
+/* Pixel-art card with dialog frame background */
 .fg-card {
   width: 100%;
   max-width: 380px;
   text-align: center;
   padding: 28px 20px;
   background: var(--surface);
-  border: 2px solid var(--gold-dim);
-  border-radius: var(--radius);
+  border: 12px solid transparent;
+  border-image: url('/images/o_dialog_bg-sheet0.png') 12 fill round;
+  border-radius: 2px;
 }
 
 .fg-title {
@@ -506,6 +509,7 @@ html, body {
   font-size: 26px;
   color: var(--gold);
   margin-bottom: 8px;
+  text-shadow: 2px 2px 0 var(--bg);
 }
 
 .fg-subtitle {
@@ -533,16 +537,71 @@ html, body {
   background: rgba(243, 210, 118, 0.06);
   border: 1px solid var(--gold-dim);
   border-radius: var(--radius);
+  position: relative;
 }
 
+/* Church icon — inherent pixel art, keep crisp */
 .fg-parish-icon {
-  font-size: 32px;
-  margin-bottom: 4px;
+  display: block;
+  margin: 0 auto 8px;
+  image-rendering: pixelated;
 }
 
 .fg-parish-icon-large {
-  font-size: 48px;
-  margin-bottom: 8px;
+  margin: 0 auto 12px;
+}
+
+.fg-parish-icon-sm {
+  display: inline-block;
+  vertical-align: middle;
+  image-rendering: pixelated;
+}
+
+/* Idle sprites on welcome screen */
+.fg-idle-sprites {
+  margin-top: 10px;
+  height: 32px;
+  position: relative;
+}
+
+.fg-sprite {
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  background: url('/images/os_peer-sheet0.png') no-repeat;
+  image-rendering: pixelated;
+  position: absolute;
+}
+
+.fg-sprite-left {
+  left: calc(50% - 48px);
+  background-position: 0 0;
+  animation: fg-bob 2s ease-in-out infinite;
+}
+
+.fg-sprite-right {
+  right: calc(50% - 48px);
+  background-position: -32px 0;
+  animation: fg-bob 2s ease-in-out 1s infinite;
+}
+
+@keyframes fg-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+/* Attendee avatar */
+.fg-avatar {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  background: url('/images/os_peer-sheet0.png') no-repeat;
+  background-position: 0 0;
+  background-size: 96px 96px;
+  image-rendering: pixelated;
+  vertical-align: middle;
+  margin-right: 8px;
+  flex-shrink: 0;
 }
 
 .fg-parish-header {
@@ -741,7 +800,24 @@ html, body {
 
 .fg-nav-active { color: var(--gold); }
 
-.fg-nav-icon { font-size: 20px; }
+.fg-nav-icon {
+  width: 24px;
+  height: 24px;
+  display: inline-block;
+  image-rendering: pixelated;
+}
+
+.fg-nav-icon-home {
+  background: url('/images/os_church2-sheet0.png') no-repeat center;
+  background-size: 20px 24px;
+}
+
+.fg-nav-icon-people {
+  background: url('/images/os_peer-sheet0.png') no-repeat;
+  background-position: 0 0;
+  background-size: 96px 96px;
+}
+
 .fg-nav-label { font-size: 10px; }
 
 .fg-feedback {

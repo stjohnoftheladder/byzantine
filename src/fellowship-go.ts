@@ -135,7 +135,7 @@ function loadAttendees(): void {
     return;
   }
   list.innerHTML = attendees.map((name) =>
-    `<div class="fg-attendee-item">${escapeHtml(name)}</div>`
+    `<div class="fg-attendee-item"><span class="fg-avatar"></span>${escapeHtml(name)}</div>`
   ).join('');
 }
 

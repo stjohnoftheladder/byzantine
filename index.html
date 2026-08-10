@@ -20,9 +20,13 @@
       <h1 class="fg-title">Fellowship Go</h1>
       <p class="fg-subtitle">Connect with your parish and nearby Orthodox Christians.</p>
       <div class="fg-parish-preview">
-        <div class="fg-parish-icon">&#9768;</div>
+        <img class="fg-parish-icon" src="/images/os_church2-sheet0.png" alt="Church" width="42" height="51">
         <div><strong>Ss. George &amp; Alexandra</strong></div>
         <div class="fg-text-dim">Fort Smith, Arkansas</div>
+        <div class="fg-idle-sprites" aria-hidden="true">
+          <span class="fg-sprite fg-sprite-left"></span>
+          <span class="fg-sprite fg-sprite-right"></span>
+        </div>
       </div>
       <div class="fg-actions">
         <button id="fg-join-btn" class="fg-btn fg-btn-primary">Join my parish</button>
@@ -36,7 +40,7 @@
   <div id="fg-parish-card" class="fg-screen" hidden>
     <div class="fg-card">
       <button class="fg-back" id="fg-card-back" aria-label="Back">&larr; Back</button>
-      <div class="fg-parish-icon fg-parish-icon-large">&#9768;</div>
+      <img class="fg-parish-icon fg-parish-icon-large" src="/images/os_church2-sheet0.png" alt="Church" width="64" height="78">
       <h2 class="fg-title">Ss. George &amp; Alexandra</h2>
       <p class="fg-text-dim">Fort Smith, Arkansas</p>
       <div class="fg-meet-highlight">
@@ -54,7 +58,7 @@
     <div class="fg-card">
       <h2 class="fg-title">My Parish</h2>
       <div class="fg-parish-header">
-        <span class="fg-parish-icon">&#9768;</span>
+        <img class="fg-parish-icon-sm" src="/images/os_church2-sheet0.png" alt="" width="28" height="34">
         <span>Ss. George &amp; Alexandria</span>
       </div>
       <div class="fg-meet-highlight">
@@ -87,11 +91,11 @@
   <!-- Bottom nav (visible after onboarding) -->
   <nav id="fg-nav" class="fg-nav" hidden>
     <button class="fg-nav-btn fg-nav-active" data-screen="fg-my-parish">
-      <span class="fg-nav-icon">&#8962;</span>
+      <span class="fg-nav-icon fg-nav-icon-home"></span>
       <span class="fg-nav-label">My Parish</span>
     </button>
     <button class="fg-nav-btn" data-screen="fg-fellowship">
-      <span class="fg-nav-icon">&#9829;</span>
+      <span class="fg-nav-icon fg-nav-icon-people"></span>
       <span class="fg-nav-label">Fellowship</span>
     </button>
   </nav>
