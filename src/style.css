@@ -366,7 +366,23 @@ html, body {
   }
 }
 /* ---- Fellowship Go screens ---- */
-/* Pixel-art visual layer on top of Byzantine DOM styling */
+/*
+  Aesthetic: Byzantine Parchment Pixel
+  Dark sanctuary atmosphere with gold illumination, chunky pixel-art accents,
+  and generous breathing room for elderly parishioners on mobile.
+*/
+
+/* Fade-in screen transition */
+@keyframes fg-fade-in {
+  0% { opacity: 0; transform: translateY(6px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Subtle repeating cross pattern for background texture */
+@keyframes fg-shimmer {
+  0%, 100% { opacity: 0.04; }
+  50% { opacity: 0.07; }
+}
 
 .fg-screen {
   position: fixed;
@@ -374,41 +390,62 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bg);
   z-index: 90;
-  padding: 16px;
-  padding-top: var(--safe-top);
-  padding-bottom: calc(60px + var(--safe-bottom));
+  padding: 20px;
+  padding-top: calc(24px + var(--safe-top));
+  padding-bottom: calc(72px + var(--safe-bottom));
   overflow-y: auto;
+  /* Background: deep sanctuary with cross-nimbus texture */
+  background:
+    radial-gradient(ellipse at 50% 30%, rgba(139, 105, 20, 0.12) 0%, transparent 60%),
+    radial-gradient(ellipse at 50% 80%, rgba(243, 210, 118, 0.04) 0%, transparent 40%),
+    var(--bg);
 }
 
 .fg-screen[hidden] { display: none !important; }
 
-/* Pixel-art card with dialog frame background */
+/* Card — raised parchment with gold frame */
 .fg-card {
   width: 100%;
   max-width: 380px;
   text-align: center;
-  padding: 28px 20px;
-  background: var(--surface);
+  padding: 32px 24px;
+  position: relative;
+  /* Warm parchment surface with subtle grain */
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(243, 210, 118, 0.08) 0%, transparent 50%),
+    linear-gradient(180deg, #1e180f 0%, var(--surface) 30%, #141008 100%);
   border: 12px solid transparent;
   border-image: url('/images/o_dialog_bg-sheet0.png') 12 fill round;
   border-radius: 2px;
+  box-shadow:
+    0 0 0 1px rgba(243, 210, 118, 0.15),
+    0 8px 32px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(243, 210, 118, 0.05);
+  animation: fg-fade-in 0.4s ease-out both;
 }
 
+/* Title — pixel-art ecclesiastical */
 .fg-title {
-  font-family: Georgia, serif;
-  font-size: 26px;
+  font-family: 'PixelEmulator', Georgia, serif;
+  font-size: 24px;
   color: var(--gold);
-  margin-bottom: 8px;
-  text-shadow: 2px 2px 0 var(--bg);
+  margin-bottom: 10px;
+  letter-spacing: 1px;
+  text-shadow:
+    2px 2px 0 #0a0603,
+    0 0 20px rgba(243, 210, 118, 0.15);
+  image-rendering: pixelated;
 }
 
 .fg-subtitle {
   font-size: 14px;
   color: var(--text-dim);
-  margin-bottom: 20px;
-  line-height: 1.5;
+  margin-bottom: 24px;
+  line-height: 1.6;
+  max-width: 280px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .fg-text-dim {
@@ -419,28 +456,41 @@ html, body {
 .fg-reassurance {
   font-size: 12px;
   color: var(--text-dim);
-  margin-top: 16px;
+  margin-top: 20px;
   font-style: italic;
+  opacity: 0.7;
 }
 
+/* Parish preview — illuminated icon alcove */
 .fg-parish-preview {
-  padding: 16px;
-  margin: 16px 0;
-  background: rgba(243, 210, 118, 0.06);
-  border: 1px solid var(--gold-dim);
+  padding: 20px 16px;
+  margin: 20px 0;
+  background:
+    radial-gradient(ellipse at 50% 30%, rgba(243, 210, 118, 0.1) 0%, transparent 70%);
+  border: 2px solid rgba(196, 164, 108, 0.3);
   border-radius: var(--radius);
   position: relative;
+  box-shadow: inset 0 1px 0 rgba(243, 210, 118, 0.05);
 }
 
-/* Church icon — inherent pixel art, keep crisp */
+.fg-parish-preview strong {
+  font-size: 15px;
+  color: var(--text);
+  display: block;
+  margin-top: 10px;
+}
+
+/* Church icon — crisp pixel art */
 .fg-parish-icon {
   display: block;
-  margin: 0 auto 8px;
+  margin: 0 auto;
   image-rendering: pixelated;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
 }
 
 .fg-parish-icon-large {
-  margin: 0 auto 12px;
+  margin: 0 auto 16px;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.6));
 }
 
 .fg-parish-icon-sm {
@@ -449,9 +499,21 @@ html, body {
   image-rendering: pixelated;
 }
 
-/* Idle sprites on welcome screen */
+.fg-parish-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 17px;
+  color: var(--gold);
+  margin-bottom: 20px;
+  font-family: 'PixelEmulator', Georgia, serif;
+  letter-spacing: 1px;
+}
+
+/* Idle sprites */
 .fg-idle-sprites {
-  margin-top: 10px;
+  margin-top: 12px;
   height: 32px;
   position: relative;
 }
@@ -464,16 +526,17 @@ html, body {
   background-size: 128px 128px;
   image-rendering: pixelated;
   position: absolute;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.4));
 }
 
 .fg-sprite-left {
-  left: calc(50% - 48px);
+  left: calc(50% - 52px);
   background-position: 0 0;
   animation: fg-idle 1.5s steps(2, jump-none) infinite;
 }
 
 .fg-sprite-right {
-  right: calc(50% - 48px);
+  right: calc(50% - 52px);
   background-position: -32px 0;
   animation: fg-idle 1.5s steps(2, jump-none) 0.75s infinite;
 }
@@ -483,197 +546,235 @@ html, body {
   50% { transform: translateY(-2px); }
 }
 
-/* Attendee avatar — cropped from sprite sheet */
+/* Attendee avatar */
 .fg-avatar {
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   object-fit: none;
   object-position: 0 0;
   image-rendering: pixelated;
   vertical-align: middle;
-  margin-right: 8px;
+  margin-right: 10px;
   flex-shrink: 0;
+  border-radius: 2px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
 }
 
-.fg-parish-header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  font-size: 16px;
-  color: var(--gold);
-  margin-bottom: 16px;
-}
-
+/* Actions */
 .fg-actions {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-top: 8px;
+  gap: 12px;
+  margin-top: 12px;
 }
 
 .fg-actions-secondary {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-top: 20px;
-  padding-top: 16px;
-  border-top: 1px solid rgba(243, 210, 118, 0.12);
+  gap: 10px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 2px solid rgba(243, 210, 118, 0.1);
 }
 
+/* Buttons — tactile gold */
 .fg-btn {
-  padding: 14px;
-  font-size: 16px;
+  padding: 16px;
+  font-size: 17px;
   font-family: Georgia, serif;
   border: none;
   border-radius: var(--radius);
   cursor: pointer;
-  font-weight: 600;
-  transition: opacity 0.15s;
+  font-weight: 700;
+  transition: all 0.2s ease;
   width: 100%;
+  position: relative;
 }
 
-.fg-btn:hover { opacity: 0.9; }
-.fg-btn:active { opacity: 0.8; }
+.fg-btn:active { transform: scale(0.97); }
 
 .fg-btn-primary {
-  background: var(--gold);
-  color: var(--bg);
+  background: linear-gradient(180deg, #f5d880 0%, var(--gold) 50%, #d4a820 100%);
+  color: #0a0603;
+  box-shadow:
+    0 2px 0 #8b6914,
+    0 4px 12px rgba(243, 210, 118, 0.2);
+  text-shadow: 0 1px 0 rgba(255,255,255,0.1);
+  letter-spacing: 0.5px;
+}
+
+.fg-btn-primary:hover {
+  background: linear-gradient(180deg, #f8e090 0%, #f5d880 50%, #e0b020 100%);
+  box-shadow: 0 2px 0 #8b6914, 0 6px 18px rgba(243, 210, 118, 0.3);
 }
 
 .fg-btn-outline {
   background: transparent;
   color: var(--gold);
-  border: 2px solid var(--gold-dim);
+  border: 2px solid rgba(196, 164, 108, 0.4);
+  font-weight: 600;
+}
+
+.fg-btn-outline:hover {
+  border-color: var(--gold);
+  background: rgba(243, 210, 118, 0.05);
 }
 
 .fg-btn-large {
-  padding: 18px;
-  font-size: 20px;
+  padding: 20px;
+  font-size: 22px;
+  letter-spacing: 1px;
 }
 
 .fg-btn--coming {
-  background: var(--accent);
+  background: linear-gradient(180deg, #9a7a1a 0%, var(--accent) 50%, #6b4e10 100%);
   color: var(--text);
   cursor: default;
+  box-shadow: 0 2px 0 #5a3e08, 0 4px 12px rgba(139, 105, 20, 0.2);
 }
 
 .fg-back {
   background: none;
   border: none;
   color: var(--gold-dim);
-  font-size: 14px;
+  font-size: 15px;
   font-family: Georgia, serif;
   cursor: pointer;
-  padding: 4px 8px;
-  margin-bottom: 12px;
+  padding: 6px 10px;
+  margin-bottom: 16px;
+  transition: color 0.2s;
 }
 
 .fg-back:hover { color: var(--gold); }
 
+/* Meet highlight — hero element with candle */
 .fg-meet-highlight {
-  padding: 16px;
-  margin: 16px 0;
-  background: rgba(139, 105, 20, 0.15);
-  border: 1px solid var(--accent);
+  padding: 20px 16px;
+  margin: 20px 0;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(243, 210, 118, 0.1) 0%, transparent 60%),
+    rgba(139, 105, 20, 0.12);
+  border: 2px solid rgba(139, 105, 20, 0.4);
   border-radius: var(--radius);
   position: relative;
+  box-shadow:
+    inset 0 1px 0 rgba(243, 210, 118, 0.06),
+    0 0 20px rgba(139, 105, 20, 0.08);
 }
 
 .fg-meet-highlight::after {
   content: '';
   position: absolute;
-  bottom: 6px;
-  right: 10px;
-  width: 22px;
-  height: 22px;
+  bottom: 8px;
+  right: 12px;
+  width: 24px;
+  height: 24px;
   background: url('/images/candle-sheet0.png') no-repeat;
   background-size: 32px 71px;
   background-position: 0 0;
   image-rendering: pixelated;
-  opacity: 0.5;
+  opacity: 0.35;
+  animation: fg-shimmer 3s ease-in-out infinite;
 }
 
 .fg-meet-label {
   font-size: 11px;
   color: var(--gold-dim);
   text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 4px;
+  letter-spacing: 2px;
+  margin-bottom: 6px;
 }
 
 .fg-meet-date {
-  font-size: 20px;
+  font-size: 24px;
   color: var(--gold);
   font-weight: 700;
+  text-shadow: 0 0 10px rgba(243, 210, 118, 0.15);
+  line-height: 1.2;
 }
 
 .fg-meet-time {
-  font-size: 14px;
+  font-size: 15px;
   color: var(--text-dim);
+  margin-top: 2px;
 }
 
 .fg-welcome-msg {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--text-dim);
-  line-height: 1.6;
-  margin: 12px 0;
+  line-height: 1.7;
+  margin: 16px 0;
 }
 
+/* Attendees */
 .fg-attendees {
-  margin-top: 16px;
+  margin-top: 20px;
   text-align: left;
 }
 
 .fg-attendees-label {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--gold-dim);
   text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 8px;
+  letter-spacing: 2px;
+  margin-bottom: 10px;
 }
 
 .fg-attendee-list {
-  font-size: 14px;
+  font-size: 15px;
   color: var(--text);
 }
 
 .fg-attendee-item {
-  padding: 6px 0;
-  border-bottom: 1px solid rgba(243, 210, 118, 0.08);
+  padding: 10px 8px;
+  border-bottom: 1px solid rgba(243, 210, 118, 0.06);
+  display: flex;
+  align-items: center;
 }
 
 .fg-attendee-item:last-child { border-bottom: none; }
 
+/* Fellowship list */
 .fg-fellowship-list {
-  margin-top: 16px;
+  margin-top: 20px;
   text-align: left;
 }
 
 .fg-fellowship-entry {
-  padding: 10px;
-  margin-bottom: 6px;
-  background: rgba(243, 210, 118, 0.05);
+  padding: 14px 12px;
+  margin-bottom: 8px;
+  background:
+    linear-gradient(135deg, rgba(243, 210, 118, 0.04) 0%, transparent 50%);
+  border: 1px solid rgba(243, 210, 118, 0.08);
   border-radius: var(--radius);
+  transition: border-color 0.2s;
+}
+
+.fg-fellowship-entry:hover {
+  border-color: rgba(243, 210, 118, 0.2);
 }
 
 .fg-fellowship-name {
-  font-size: 15px;
+  font-size: 16px;
   color: var(--gold);
   font-weight: 600;
+  margin-bottom: 2px;
 }
 
 .fg-fellowship-parish {
   font-size: 12px;
   color: var(--text-dim);
+  margin-bottom: 2px;
 }
 
 .fg-fellowship-activity {
   font-size: 12px;
   color: var(--text-dim);
   font-style: italic;
+  opacity: 0.7;
 }
 
+/* Bottom nav */
 .fg-nav {
   position: fixed;
   bottom: 0;
@@ -681,9 +782,11 @@ html, body {
   right: 0;
   z-index: 95;
   display: flex;
-  background: var(--surface);
-  border-top: 2px solid var(--gold-dim);
+  background:
+    linear-gradient(180deg, rgba(26, 20, 13, 0.95) 0%, var(--surface) 100%);
+  border-top: 2px solid rgba(196, 164, 108, 0.3);
   padding-bottom: var(--safe-bottom);
+  backdrop-filter: blur(8px);
 }
 
 .fg-nav-btn {
@@ -691,28 +794,28 @@ html, body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
-  padding: 10px 4px;
+  gap: 4px;
+  padding: 12px 4px 10px;
   background: none;
   border: none;
   color: var(--text-dim);
   font-family: Georgia, serif;
   font-size: 11px;
   cursor: pointer;
-  transition: color 0.15s;
+  transition: all 0.2s;
+  position: relative;
 }
 
 .fg-nav-btn:hover { color: var(--text); }
 
 .fg-nav-active {
   color: var(--gold);
-  position: relative;
 }
 
 .fg-nav-active::after {
   content: '';
   position: absolute;
-  top: 2px;
+  top: 3px;
   left: 50%;
   transform: translateX(-50%);
   width: 12px;
@@ -720,37 +823,47 @@ html, body {
   background: url('/images/os_cursor-sheet0.png') no-repeat;
   background-size: contain;
   image-rendering: pixelated;
+  opacity: 0.8;
+  animation: fg-shimmer 2s ease-in-out infinite;
 }
 
 .fg-nav-icon {
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   display: inline-block;
   image-rendering: pixelated;
+  transition: transform 0.2s;
 }
+
+.fg-nav-active .fg-nav-icon { transform: scale(1.15); }
 
 .fg-nav-icon-home {
   background: url('/images/os_church2-sheet0.png') no-repeat center;
-  background-size: 20px 24px;
+  background-size: 22px 27px;
 }
 
 .fg-nav-icon-people {
   background: url('/images/os_peer-sheet0.png') no-repeat;
   background-position: 0 0;
-  background-size: 96px 96px;
+  background-size: 104px 104px;
 }
 
-.fg-nav-label { font-size: 10px; }
+.fg-nav-label {
+  font-size: 10px;
+  letter-spacing: 0.5px;
+}
 
+/* Feedback */
 .fg-feedback {
   position: fixed;
   inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(18, 13, 7, 0.92);
+  background: rgba(10, 8, 4, 0.94);
   z-index: 99;
-  padding: 16px;
+  padding: 24px;
+  animation: fg-fade-in 0.3s ease-out;
 }
 
 .fg-feedback[hidden] { display: none !important; }
@@ -759,36 +872,42 @@ html, body {
   width: 100%;
   max-width: 320px;
   text-align: center;
-  padding: 24px;
-  background: var(--surface);
+  padding: 28px 24px;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(243, 210, 118, 0.08) 0%, transparent 60%),
+    var(--surface);
   border: 2px solid var(--gold);
   border-radius: var(--radius);
+  box-shadow: 0 0 30px rgba(243, 210, 118, 0.08);
+  animation: fg-fade-in 0.4s ease-out 0.1s both;
 }
 
 .fg-feedback-q {
-  font-size: 18px;
+  font-size: 20px;
   color: var(--gold);
-  margin-bottom: 16px;
+  margin-bottom: 20px;
+  font-family: 'PixelEmulator', Georgia, serif;
 }
 
 .fg-feedback-emojis {
   display: flex;
   justify-content: center;
-  gap: 16px;
-  margin-bottom: 16px;
+  gap: 20px;
+  margin-bottom: 20px;
 }
 
 .fg-emoji-btn {
-  font-size: 40px;
+  font-size: 44px;
   background: none;
   border: 2px solid transparent;
   border-radius: var(--radius);
   cursor: pointer;
-  padding: 8px;
-  transition: transform 0.15s, border-color 0.15s;
+  padding: 10px;
+  transition: all 0.2s;
 }
 
 .fg-emoji-btn:hover {
-  transform: scale(1.2);
+  transform: scale(1.25);
   border-color: var(--gold-dim);
+  filter: brightness(1.2);
 }
