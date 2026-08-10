@@ -145,6 +145,7 @@ export default {
 
 export class PilgrimRoom extends DurableObject<WorkerEnv> {
   private schemaReady = false;
+  private hostId: string | null = null;
 
   constructor(ctx: DurableObjectState, env: WorkerEnv) {
     super(ctx, env);
@@ -247,7 +248,7 @@ export class PilgrimRoom extends DurableObject<WorkerEnv> {
       socket.serializeAttachment(state);
       return;
     }
-    if (input.type === 'grant_parish_meet_points' && state.ready) {
+    if (input.type === 'grant_parish_meet_points' && state.ready && state.id === this.hostId) {
       state.updatedAt = now;
       socket.serializeAttachment(state);
       await this.grantParishMeetPoints(socket, state, now);
@@ -332,6 +333,7 @@ export class PilgrimRoom extends DurableObject<WorkerEnv> {
     if (input.type === 'hello') {
       state.name = cleanName(input.name);
       state.ready = true;
+      if (!this.hostId) this.hostId = state.id;
     } else if (!state.ready) return;
     socket.serializeAttachment(state);
     this.broadcast({ type: 'peer', peer: this.publicState(state) }, socket);
@@ -541,6 +543,7 @@ export class PilgrimRoom extends DurableObject<WorkerEnv> {
     state.ready = false;
     socket.serializeAttachment(state);
     this.ctx.storage.sql.exec(`DELETE FROM video_blocks WHERE blocker_id = ? OR blocked_id = ?`, state.id, state.id);
+    if (state.id === this.hostId) this.hostId = null;
     this.broadcast({ type: 'leave', id: state.id }, socket);
   }
 
