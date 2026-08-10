@@ -461,6 +461,7 @@ html, body {
   width: 32px;
   height: 32px;
   background: url('/images/os_peer-sheet0.png') no-repeat;
+  background-size: 128px 128px;
   image-rendering: pixelated;
   position: absolute;
 }
@@ -468,28 +469,26 @@ html, body {
 .fg-sprite-left {
   left: calc(50% - 48px);
   background-position: 0 0;
-  animation: fg-bob 2s ease-in-out infinite;
+  animation: fg-idle 1.5s steps(2, jump-none) infinite;
 }
 
 .fg-sprite-right {
   right: calc(50% - 48px);
   background-position: -32px 0;
-  animation: fg-bob 2s ease-in-out 1s infinite;
+  animation: fg-idle 1.5s steps(2, jump-none) 0.75s infinite;
 }
 
-@keyframes fg-bob {
+@keyframes fg-idle {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-3px); }
+  50% { transform: translateY(-2px); }
 }
 
-/* Attendee avatar */
+/* Attendee avatar — cropped from sprite sheet */
 .fg-avatar {
-  display: inline-block;
-  width: 24px;
-  height: 24px;
-  background: url('/images/os_peer-sheet0.png') no-repeat;
-  background-position: 0 0;
-  background-size: 96px 96px;
+  width: 20px;
+  height: 20px;
+  object-fit: none;
+  object-position: 0 0;
   image-rendering: pixelated;
   vertical-align: middle;
   margin-right: 8px;
