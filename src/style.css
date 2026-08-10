@@ -705,7 +705,23 @@ html, body {
 
 .fg-nav-btn:hover { color: var(--text); }
 
-.fg-nav-active { color: var(--gold); }
+.fg-nav-active {
+  color: var(--gold);
+  position: relative;
+}
+
+.fg-nav-active::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 12px;
+  height: 12px;
+  background: url('/images/os_cursor-sheet0.png') no-repeat;
+  background-size: contain;
+  image-rendering: pixelated;
+}
 
 .fg-nav-icon {
   width: 24px;
