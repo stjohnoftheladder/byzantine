@@ -230,14 +230,17 @@ export class HubScene extends Phaser.Scene {
     const register = (defs: AnimDef[]): void => {
       for (const def of defs) {
         if (this.anims.exists(def.key)) continue;
-        const frames = def.frames.map((frame, index) => {
-          const frameName = `${def.key}-${index}`;
+        const frames: { key: string; frame: string }[] = [];
+        for (let i = 0; i < def.frames.length; i++) {
+          const frame = def.frames[i];
           const texture = this.textures.get(frame.sheet);
+          if (!texture) continue;
+          const frameName = `${def.key}-${i}`;
           if (!texture.has(frameName)) {
             texture.add(frameName, 0, frame.x, frame.y, frame.w, frame.h);
           }
-          return { key: frame.sheet, frame: frameName };
-        });
+          frames.push({ key: frame.sheet, frame: frameName });
+        }
         this.anims.create({ key: def.key, frames, frameRate: def.frameRate, repeat: def.repeat });
       }
     };

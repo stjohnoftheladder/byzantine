@@ -242,14 +242,6 @@ export function initFellowshipGo(): void {
     });
   });
 
-  // Fellowship screen loads on show
-  const fgNavBtns = fgNav.querySelectorAll('.fg-nav-btn');
-  fgNavBtns.forEach((btn) => {
-    if ((btn as HTMLElement).dataset.screen === 'fg-fellowship') {
-      btn.addEventListener('click', () => loadFellowship());
-    }
-  });
-
   // Feedback prompt
   document.querySelectorAll<HTMLButtonElement>('.fg-emoji-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
