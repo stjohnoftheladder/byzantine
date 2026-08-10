@@ -71,7 +71,6 @@ const dailyConversation = new DailyConversation();
 let game: Phaser.Game | null = null;
 let hubScene: HubScene | null = null;
 let savedAtLaunch = readSave();
-console.log('Byzantine: loaded, savedAtLaunch =', !!savedAtLaunch);
 let incomingInvite: VideoInvite | null = null;
 let conversationTimer: number | undefined;
 let conversationJoined = false;
@@ -87,12 +86,10 @@ let toastTimer: number | undefined;
 // Fellowship Go is the gateway. The hub launches from "Enter the Hub" button.
 
 const startGame = (save: ByzantineSave): void => {
-  console.log('startGame: entering, save=', save.name, save.playerId);
   try {
     hideFellowshipGo();
     gameView.hidden = false;
     document.body.classList.add('is-playing');
-    console.log('startGame: gameView visible');
 
     const isHost = new URLSearchParams(window.location.search).has('host');
     if (isHost) hostControls.hidden = false;

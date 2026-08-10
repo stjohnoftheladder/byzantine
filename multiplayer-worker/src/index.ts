@@ -129,12 +129,6 @@ export default {
         ok: true,
         service: 'phaser4-multiplayer',
         videoConfigured: Boolean(env.DAILY_API_KEY && cleanSubdomain(env.DAILY_SUBDOMAIN)),
-        // Debug: secret status (no values exposed)
-        _debug: {
-          has_api_key: Boolean(env.DAILY_API_KEY),
-          has_subdomain: Boolean(env.DAILY_SUBDOMAIN),
-          subdomain_valid: Boolean(cleanSubdomain(env.DAILY_SUBDOMAIN)),
-        },
         versionId: env.CF_VERSION_METADATA.id,
         versionTag: env.CF_VERSION_METADATA.tag,
         versionTimestamp: env.CF_VERSION_METADATA.timestamp,
