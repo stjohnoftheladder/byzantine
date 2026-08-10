@@ -13,7 +13,7 @@ import {
 import { HubScene } from './HubScene';
 import { LadderScene } from './LadderScene';
 import type { ByzantineSave } from './types';
-import { clearSave, defaultSave, readSave, writeSave } from './save';
+import { defaultSave, readSave, writeSave } from './save';
 import type {
   PeerPresence,
   VideoCredentials,
@@ -22,6 +22,7 @@ import type {
   VideoClientMessage,
 } from './multiplayer/MultiplayerClient';
 import { DailyConversation } from './video/DailyConversation';
+import { hideFellowshipGo, initFellowshipGo, showFellowshipGo } from './fellowship-go';
 
 // ---- DOM helpers ----
 
@@ -33,10 +34,7 @@ const byId = <T extends HTMLElement>(id: string): T => {
 
 // ---- State ----
 
-const welcome = byId('welcome');
 const gameView = byId('game-view');
-const pilgrimForm = byId<HTMLFormElement>('pilgrim-form');
-const pilgrimName = byId<HTMLInputElement>('pilgrim-name');
 
 const playerCard = byId('player-card');
 const cardClose = byId('card-close');
@@ -85,16 +83,16 @@ let activeConversation: {
 } | null = null;
 let toastTimer: number | undefined;
 
-// ---- Welcome screen ----
-// Returning parishioners auto-join the hub — no "continue" button needed.
+// ---- Entry flow ----
+// Fellowship Go is the gateway. The hub launches from "Enter the Hub" button.
 
 const startGame = (save: ByzantineSave): void => {
   console.log('startGame: entering, save=', save.name, save.playerId);
   try {
-    welcome.hidden = true;
+    hideFellowshipGo();
     gameView.hidden = false;
     document.body.classList.add('is-playing');
-    console.log('startGame: welcome hidden, gameView visible');
+    console.log('startGame: gameView visible');
 
     const isHost = new URLSearchParams(window.location.search).has('host');
     if (isHost) hostControls.hidden = false;
@@ -129,38 +127,24 @@ const startGame = (save: ByzantineSave): void => {
   }
 };
 
-const submitName = (): void => {
-  try {
-    const name = pilgrimName.value.trim().slice(0, 16);
-    if (!name) return;
-    const playerId = crypto.randomUUID();
-    const save = defaultSave(name, playerId);
-    writeSave(save);
-    void startGame(save);
-  } catch (e) {
-    console.error('Form submit failed:', e);
-  }
-};
+// ---- Fellowship Go entry ----
 
-if (savedAtLaunch) {
-  try {
-    void startGame(savedAtLaunch);
-  } catch {
-    // Corrupted save — clear it and show welcome screen
-    clearSave();
-    savedAtLaunch = null;
+initFellowshipGo();
+showFellowshipGo();
+
+// Wire "Enter the Hub" button
+const enterHubBtn = document.getElementById('fg-enter-hub-btn');
+enterHubBtn?.addEventListener('click', () => {
+  // If we have a Byzantine identity, use it; otherwise create one from FG name
+  let save = savedAtLaunch;
+  if (!save) {
+    const fgName = localStorage.getItem('fg-rsvp-name') || 'Parishioner';
+    const playerId = crypto.randomUUID();
+    save = defaultSave(fgName, playerId);
+    writeSave(save);
   }
-} else {
-  pilgrimForm.addEventListener('submit', (event) => {
-    event.preventDefault();
-    submitName();
-  });
-  // Also bind to button click for browsers where form submit behaves oddly
-  pilgrimForm.querySelector('button[type="submit"]')?.addEventListener('click', (event) => {
-    event.preventDefault();
-    submitName();
-  });
-}
+  void startGame(save);
+});
 
 // ---- Player card ----
 

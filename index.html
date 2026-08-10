@@ -3,30 +3,100 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="description" content="Byzantine — parish fellowship hub for Ss. George &amp; Alexandria">
+  <meta name="description" content="Fellowship Go — connect with your parish and nearby Orthodox Christians">
   <meta name="theme-color" content="#120d07">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 60'><rect x='13' y='8' width='14' height='2.5' rx='0.4' fill='%23f3d276'/><rect x='18.5' y='3' width='3' height='54' rx='0.5' fill='%23f3d276'/><rect x='4' y='18' width='32' height='3.5' rx='0.5' fill='%23f3d276'/></svg>">
   <link rel="manifest" href="/manifest.webmanifest">
-  <title>Byzantine | Parish Hub</title>
+  <title>Fellowship Go</title>
   <link rel="stylesheet" href="/src/style.css">
 </head>
 <body>
-  <!-- Welcome / onboarding overlay -->
-  <div id="welcome" class="welcome-overlay" role="dialog" aria-label="Welcome to Byzantine">
-    <div class="welcome-card">
-      <h1 class="welcome-title">Byzantine</h1>
-      <p class="welcome-subtitle">Ss. George &amp; Alexandra Parish Hub</p>
-      <form id="pilgrim-form" class="welcome-form">
-        <label for="pilgrim-name" class="welcome-label">Your name</label>
-        <input id="pilgrim-name" name="name" type="text" autocomplete="name" required
-               placeholder="e.g. Mark" maxlength="16" aria-describedby="name-hint" class="welcome-input">
-        <p id="name-hint" class="welcome-hint">First name is all we need.</p>
-        <div class="welcome-parish">Home parish: <strong>Ss. George &amp; Alexandria</strong></div>
-        <button type="submit" class="welcome-btn">Enter the Hub</button>
-        <button id="continue-button" type="button" class="welcome-btn welcome-btn--secondary" hidden>Continue as …</button>
-      </form>
+
+  <!-- ====== FELLOWSHIP GO SCREENS ====== -->
+
+  <!-- FG Welcome -->
+  <div id="fg-welcome" class="fg-screen">
+    <div class="fg-card">
+      <h1 class="fg-title">Fellowship Go</h1>
+      <p class="fg-subtitle">Connect with your parish and nearby Orthodox Christians.</p>
+      <div class="fg-parish-preview">
+        <div class="fg-parish-icon">&#9768;</div>
+        <div><strong>Ss. George &amp; Alexandra</strong></div>
+        <div class="fg-text-dim">Fort Smith, Arkansas</div>
+      </div>
+      <div class="fg-actions">
+        <button id="fg-join-btn" class="fg-btn fg-btn-primary">Join my parish</button>
+        <button id="fg-explore-btn" class="fg-btn fg-btn-outline">Explore first</button>
+      </div>
+      <p class="fg-reassurance">You choose what to share.</p>
     </div>
   </div>
+
+  <!-- FG Parish Card (shown after "Explore first") -->
+  <div id="fg-parish-card" class="fg-screen" hidden>
+    <div class="fg-card">
+      <button class="fg-back" id="fg-card-back" aria-label="Back">&larr; Back</button>
+      <div class="fg-parish-icon fg-parish-icon-large">&#9768;</div>
+      <h2 class="fg-title">Ss. George &amp; Alexandra</h2>
+      <p class="fg-text-dim">Fort Smith, Arkansas</p>
+      <div class="fg-meet-highlight">
+        <div class="fg-meet-label">Next parish meet</div>
+        <div class="fg-meet-date">Friday, August 28</div>
+        <div class="fg-meet-time">7:30 PM</div>
+      </div>
+      <p class="fg-welcome-msg">All are welcome. Come meet your parish family in a relaxed, friendly gathering — no pressure, just fellowship.</p>
+      <button id="fg-card-join-btn" class="fg-btn fg-btn-primary">Join Ss. George &amp; Alexandra</button>
+    </div>
+  </div>
+
+  <!-- FG My Parish (home after joining) -->
+  <div id="fg-my-parish" class="fg-screen" hidden>
+    <div class="fg-card">
+      <h2 class="fg-title">My Parish</h2>
+      <div class="fg-parish-header">
+        <span class="fg-parish-icon">&#9768;</span>
+        <span>Ss. George &amp; Alexandria</span>
+      </div>
+      <div class="fg-meet-highlight">
+        <div class="fg-meet-label">Next parish meet</div>
+        <div class="fg-meet-date">Friday, August 28</div>
+        <div class="fg-meet-time">7:30 PM</div>
+      </div>
+      <button id="fg-rsvp-btn" class="fg-btn fg-btn-primary fg-btn-large">I'm coming</button>
+      <div class="fg-attendees">
+        <div class="fg-attendees-label">Who's coming</div>
+        <div id="fg-attendee-list" class="fg-attendee-list">Loading...</div>
+      </div>
+      <div class="fg-actions-secondary">
+        <button id="fg-enter-hub-btn" class="fg-btn fg-btn-outline">Enter the Hub</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FG Fellowship -->
+  <div id="fg-fellowship" class="fg-screen" hidden>
+    <div class="fg-card">
+      <h2 class="fg-title">Fellowship</h2>
+      <p class="fg-subtitle">People and parishes you've connected with.</p>
+      <div id="fg-fellowship-list" class="fg-fellowship-list">
+        <p class="fg-text-dim">No connections yet. Join a parish meet or visit the Hub to meet someone.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom nav (visible after onboarding) -->
+  <nav id="fg-nav" class="fg-nav" hidden>
+    <button class="fg-nav-btn fg-nav-active" data-screen="fg-my-parish">
+      <span class="fg-nav-icon">&#8962;</span>
+      <span class="fg-nav-label">My Parish</span>
+    </button>
+    <button class="fg-nav-btn" data-screen="fg-fellowship">
+      <span class="fg-nav-icon">&#9829;</span>
+      <span class="fg-nav-label">Fellowship</span>
+    </button>
+  </nav>
+
+  <!-- ====== BYZANTINE HUB SCREENS ====== -->
 
   <!-- Game container -->
   <div id="game-view" hidden>
@@ -81,6 +151,19 @@
 
     <!-- System message toast -->
     <div id="toast" class="toast" hidden aria-live="polite"></div>
+  </div>
+
+  <!-- Post-meet feedback -->
+  <div id="fg-feedback" class="fg-feedback" hidden>
+    <div class="fg-feedback-card">
+      <p class="fg-feedback-q">How was the parish meet?</p>
+      <div class="fg-feedback-emojis">
+        <button data-rating="good" class="fg-emoji-btn">&#128522;</button>
+        <button data-rating="ok" class="fg-emoji-btn">&#128528;</button>
+        <button data-rating="bad" class="fg-emoji-btn">&#128533;</button>
+      </div>
+      <button id="fg-feedback-skip" class="fg-btn fg-btn-outline">Skip</button>
+    </div>
   </div>
 
   <script type="module" src="/src/main.ts"></script>
