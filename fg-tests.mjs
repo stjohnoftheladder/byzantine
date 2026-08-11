@@ -58,6 +58,13 @@ async function runAxe(page, label) {
   return results;
 }
 
+/** Complete the join flow by filling the styled first-name dialog. */
+async function joinWithName(page, name) {
+  await page.waitForSelector('#fg-name-dialog[open]', { timeout: 5000 });
+  await page.fill('#fg-name-input', name);
+  await page.click('#fg-name-form button[type=submit]');
+}
+
 const browser = await chromium.launch({ headless: true });
 
 // ============ MOBILE ============
@@ -67,7 +74,6 @@ console.log('\n== MOBILE (390×844) ==\n');
 {
   const ctx = await newContext(browser, MOBILE, null);
   const page = await ctx.newPage();
-  page.on('dialog', (d) => d.accept(''));
   await page.goto(`${BASE}/?t=${Date.now()}`, { waitUntil: 'networkidle' });
   await page.waitForSelector('#fg-welcome:not([hidden])', { timeout: 15000 });
   check('A1: welcome screen visible for fresh visitor', true);
@@ -79,14 +85,16 @@ console.log('\n== MOBILE (390×844) ==\n');
   await ctx.close();
 }
 
-// Flow B — Join my parish → My Parish
+// Flow B — Join my parish → styled name dialog → My Parish
 {
   const ctx = await newContext(browser, MOBILE, null);
   const page = await ctx.newPage();
-  page.on('dialog', (d) => d.accept('Alice'));
   await page.goto(`${BASE}/?t=${Date.now()}`, { waitUntil: 'networkidle' });
   await page.waitForSelector('#fg-join-btn', { timeout: 15000 });
   await page.click('#fg-join-btn');
+  await page.waitForSelector('#fg-name-dialog[open]', { timeout: 5000 });
+  check('B0: styled name dialog opens (no native prompt)', true);
+  await joinWithName(page, 'Alice');
   await page.waitForSelector('#fg-my-parish:not([hidden])', { timeout: 10000 });
   check('B1: My Parish shown after Join', true);
   const rsvpBtn = page.locator('#fg-rsvp-btn');
@@ -103,11 +111,10 @@ console.log('\n== MOBILE (390×844) ==\n');
   await ctx.close();
 }
 
-// Flow C — Explore first → parish card → back → join
+// Flow C — Explore first → parish card → back → join (via dialog)
 {
   const ctx = await newContext(browser, MOBILE, null);
   const page = await ctx.newPage();
-  page.on('dialog', (d) => d.accept('Bob'));
   await page.goto(`${BASE}/?t=${Date.now()}`, { waitUntil: 'networkidle' });
   await page.waitForSelector('#fg-explore-btn', { timeout: 15000 });
   await page.click('#fg-explore-btn');
@@ -123,8 +130,43 @@ console.log('\n== MOBILE (390×844) ==\n');
   await page.click('#fg-explore-btn');
   await page.waitForSelector('#fg-parish-card:not([hidden])', { timeout: 5000 });
   await page.click('#fg-card-join-btn');
+  await joinWithName(page, 'Bob');
   await page.waitForSelector('#fg-my-parish:not([hidden])', { timeout: 10000 });
-  check('C4: join from parish card works', true);
+  check('C4: join from parish card works (styled dialog)', true);
+  await ctx.close();
+}
+
+// Flow C2 — cancel path: "Not now" aborts join, stays on welcome
+{
+  const ctx = await newContext(browser, MOBILE, null);
+  const page = await ctx.newPage();
+  await page.goto(`${BASE}/?t=${Date.now()}`, { waitUntil: 'networkidle' });
+  await page.waitForSelector('#fg-join-btn', { timeout: 15000 });
+  await page.click('#fg-join-btn');
+  await page.waitForSelector('#fg-name-dialog[open]', { timeout: 5000 });
+  await page.click('#fg-name-cancel');
+  await page.waitForSelector('#fg-welcome:not([hidden])', { timeout: 5000 });
+  check('C5: cancel returns to welcome', true);
+  const stillFresh = await page.evaluate(() => localStorage.getItem('fg-rsvp-v1'));
+  check('C6: no RSVP recorded after cancel', stillFresh === null, `rsvp=${stillFresh}`);
+  await ctx.close();
+}
+
+// Flow C3 — returning parishioner with saved identity skips the name dialog
+{
+  const seed = {
+    'byzantine-save-v1': JSON.stringify({ name: 'David', playerId: 'p-123', points: 0, playerX: 240, playerY: 600 }),
+  };
+  const ctx = await newContext(browser, MOBILE, seed);
+  const page = await ctx.newPage();
+  await page.goto(`${BASE}/?t=${Date.now()}`, { waitUntil: 'networkidle' });
+  await page.waitForSelector('#fg-join-btn', { timeout: 15000 });
+  await page.click('#fg-join-btn');
+  await page.waitForSelector('#fg-my-parish:not([hidden])', { timeout: 10000 });
+  const dialogOpened = await page.evaluate(() => document.getElementById('fg-name-dialog')?.open ?? false);
+  check('C7: saved identity skips name dialog', !dialogOpened);
+  const attendeeText = await page.locator('#fg-attendee-list').innerText();
+  check('C8: saved name used as attendee', attendeeText.includes('David'), attendeeText.slice(0, 60));
   await ctx.close();
 }
 
@@ -140,7 +182,6 @@ console.log('\n== MOBILE (390×844) ==\n');
   };
   const ctx = await newContext(browser, MOBILE, seed);
   const page = await ctx.newPage();
-  page.on('dialog', (d) => d.accept(''));
   await page.goto(`${BASE}/?t=${Date.now()}`, { waitUntil: 'networkidle' });
   await page.waitForSelector('#fg-my-parish:not([hidden])', { timeout: 15000 });
   await page.click('.fg-nav-btn[data-screen="fg-fellowship"]');
@@ -158,7 +199,6 @@ console.log('\n== MOBILE (390×844) ==\n');
   const seed = { 'fg-rsvp-v1': 'true', 'fg-rsvp-name': 'Alice' };
   const ctx = await newContext(browser, MOBILE, seed);
   const page = await ctx.newPage();
-  page.on('dialog', (d) => d.accept(''));
   await page.goto(`${BASE}/?t=${Date.now()}`, { waitUntil: 'networkidle' });
   await page.waitForSelector('#fg-enter-hub-btn', { timeout: 15000 });
   await page.click('#fg-enter-hub-btn');
@@ -180,12 +220,12 @@ console.log('\n== DESKTOP (1280×800) ==\n');
 {
   const ctx = await newContext(browser, DESKTOP, null);
   const page = await ctx.newPage();
-  page.on('dialog', (d) => d.accept('Carol'));
   await page.goto(`${BASE}/?t=${Date.now()}`, { waitUntil: 'networkidle' });
   await page.waitForSelector('#fg-welcome:not([hidden])', { timeout: 15000 });
   check('F1: welcome renders at desktop', true);
   await page.screenshot({ path: '_test-06-welcome-desktop.png' });
   await page.click('#fg-join-btn');
+  await joinWithName(page, 'Carol');
   await page.waitForSelector('#fg-my-parish:not([hidden])', { timeout: 10000 });
   check('F2: join flow works at desktop', true);
   const attendeeText = await page.locator('#fg-attendee-list').innerText();

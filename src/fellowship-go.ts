@@ -20,6 +20,10 @@ const fgMyParish = document.getElementById('fg-my-parish')!;
 const fgFellowship = document.getElementById('fg-fellowship')!;
 const fgNav = document.getElementById('fg-nav')!;
 const fgFeedback = document.getElementById('fg-feedback')!;
+const fgNameDialog = document.getElementById('fg-name-dialog') as HTMLDialogElement | null;
+const fgNameForm = document.getElementById('fg-name-form') as HTMLFormElement | null;
+const fgNameInput = document.getElementById('fg-name-input') as HTMLInputElement | null;
+const fgNameCancel = document.getElementById('fg-name-cancel') as HTMLButtonElement | null;
 
 // ---- State ----
 
@@ -210,16 +214,7 @@ function escapeHtml(text: string): string {
 
 export function initFellowshipGo(): void {
   // FG Welcome
-  document.getElementById('fg-join-btn')?.addEventListener('click', () => {
-    // Save name from Byzantine identity if available, prompt otherwise
-    const save = readByzantineSave();
-    const name = save?.name || prompt('Your first name:');
-    if (name) {
-      localStorage.setItem('fg-rsvp-name', name.trim().slice(0, 16));
-    }
-    rsvp();
-    showMyParish();
-  });
+  document.getElementById('fg-join-btn')?.addEventListener('click', () => { void completeJoin(); });
 
   document.getElementById('fg-explore-btn')?.addEventListener('click', () => {
     showScreen(fgParishCard);
@@ -230,15 +225,7 @@ export function initFellowshipGo(): void {
     showScreen(fgWelcome);
   });
 
-  document.getElementById('fg-card-join-btn')?.addEventListener('click', () => {
-    const save = readByzantineSave();
-    const name = save?.name || prompt('Your first name:');
-    if (name) {
-      localStorage.setItem('fg-rsvp-name', name.trim().slice(0, 16));
-    }
-    rsvp();
-    showMyParish();
-  });
+  document.getElementById('fg-card-join-btn')?.addEventListener('click', () => { void completeJoin(); });
 
   // My Parish
   document.getElementById('fg-rsvp-btn')?.addEventListener('click', () => {
@@ -256,6 +243,18 @@ export function initFellowshipGo(): void {
     });
   });
 
+  // First-name dialog
+  fgNameForm?.addEventListener('submit', () => {
+    finishNameEntry(fgNameInput?.value.trim().slice(0, 16) || null);
+  });
+  fgNameCancel?.addEventListener('click', () => {
+    finishNameEntry(null);
+  });
+  fgNameDialog?.addEventListener('cancel', (event) => {
+    event.preventDefault();
+    finishNameEntry(null);
+  });
+
   // Feedback prompt
   document.querySelectorAll<HTMLButtonElement>('.fg-emoji-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
@@ -268,6 +267,51 @@ export function initFellowshipGo(): void {
   });
 
   // Enter Hub button (handled in main.ts)
+}
+
+/**
+ * Shared join path for both entry points ("Join my parish" and the parish
+ * card button). Uses the Byzantine identity when available, otherwise asks
+ * for a first name in the styled dialog. Cancelling the dialog aborts.
+ */
+async function completeJoin(): Promise<void> {
+  const save = readByzantineSave();
+  let name = save?.name || '';
+  if (!name) {
+    name = (await requestName()) || '';
+    if (!name) return; // user cancelled
+  }
+  localStorage.setItem('fg-rsvp-name', name.trim().slice(0, 16));
+  rsvp();
+  showMyParish();
+}
+
+let nameResolver: ((name: string | null) => void) | null = null;
+
+/** Open the styled name dialog and resolve with the entered name (or null). */
+function requestName(): Promise<string | null> {
+  return new Promise((resolve) => {
+    // Defensive: a second request while one is pending aborts the first
+    if (nameResolver) {
+      const stale = nameResolver;
+      nameResolver = null;
+      stale(null);
+    }
+    nameResolver = resolve;
+    if (fgNameInput) {
+      fgNameInput.value = '';
+      fgNameInput.removeAttribute('disabled');
+    }
+    if (fgNameDialog && !fgNameDialog.open) fgNameDialog.showModal();
+    if (fgNameInput) fgNameInput.focus();
+  });
+}
+
+function finishNameEntry(name: string | null): void {
+  if (fgNameDialog?.open) fgNameDialog.close();
+  const resolve = nameResolver;
+  nameResolver = null;
+  resolve?.(name);
 }
 
 // ---- Read Byzantine identity ----

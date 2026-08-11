@@ -170,6 +170,23 @@
     </div>
   </div>
 
+  <!-- First-name entry dialog (styled replacement for native prompt) -->
+  <dialog id="fg-name-dialog" class="fg-name-dialog" aria-labelledby="fg-name-title">
+    <div class="fg-card">
+      <h2 id="fg-name-title" class="fg-title">What's your first name?</h2>
+      <p class="fg-subtitle">We'll use it at the parish meet so people know who you are.</p>
+      <form id="fg-name-form" class="fg-name-form" method="dialog">
+        <label for="fg-name-input" class="fg-name-label">First name</label>
+        <input id="fg-name-input" name="name" type="text" autocomplete="given-name" required
+               maxlength="16" placeholder="e.g. Mark" enterkeyhint="done" class="fg-name-input">
+        <div class="fg-actions">
+          <button type="submit" class="fg-btn fg-btn-primary">Join Ss. George &amp; Alexandra</button>
+          <button type="button" id="fg-name-cancel" class="fg-btn fg-btn-outline">Not now</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
   <script type="module" src="/src/main.ts"></script>
 </body>
 </html>
