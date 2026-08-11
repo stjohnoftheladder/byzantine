@@ -6,13 +6,16 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "build": "tsc --noEmit && vite build",
-    "preview": "vite preview --host 127.0.0.1"
+    "preview": "vite preview --host 127.0.0.1",
+    "test": "node fg-tests.mjs"
   },
   "dependencies": {
     "@daily-co/daily-js": "0.91.0",
     "phaser": "^4.2.1"
   },
   "devDependencies": {
+    "axe-core": "^4.13.0",
+    "playwright": "^1.62.1",
     "typescript": "^5.9.2",
     "vite": "^7.0.6"
   }

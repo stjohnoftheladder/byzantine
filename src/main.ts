@@ -22,7 +22,7 @@ import type {
   VideoClientMessage,
 } from './multiplayer/MultiplayerClient';
 import { DailyConversation } from './video/DailyConversation';
-import { hideFellowshipGo, initFellowshipGo, showFellowshipGo } from './fellowship-go';
+import { hideFellowshipGo, initFellowshipGo, recordConnection, showFellowshipGo } from './fellowship-go';
 
 // ---- DOM helpers ----
 
@@ -268,6 +268,8 @@ async function handleVideoMessage(message: VideoServerMessage): Promise<void> {
       activeConversation.endsAt = message.endsAt;
       videoStatus.textContent = 'The conversation has begun.';
       startConversationTimer();
+      // A live conversation means we actually met — record the connection
+      recordConnection(activeConversation.credentials.peerName, 'Met in a video conversation');
       break;
     case 'video-ended':
       if (!activeConversation || !message.callId || activeConversation.credentials.callId === message.callId) {

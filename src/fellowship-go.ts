@@ -167,6 +167,20 @@ function getConnections(): Connection[] {
   } catch { return []; }
 }
 
+/**
+ * Record a parishioner we met (called when a video conversation starts).
+ * De-dupes by name — a peer is recorded once. Persisted to fg-connections.
+ */
+export function recordConnection(peerName: string, activity: string): void {
+  if (!peerName) return;
+  try {
+    const connections = getConnections();
+    if (connections.some((c) => c.name === peerName)) return;
+    connections.push({ name: peerName, parish: PARISH.name, activity });
+    localStorage.setItem('fg-connections', JSON.stringify(connections));
+  } catch { /* storage unavailable — never break the conversation */ }
+}
+
 // ---- Feedback ----
 
 function isAfterMeet(): boolean {
