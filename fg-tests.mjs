@@ -8,7 +8,7 @@
  *
  * Usage: node fg-tests.mjs [baseUrl]
  */
-import { chromium } from 'playwright';
+import { chromium, devices } from 'playwright';
 import { readFileSync } from 'fs';
 import { createRequire } from 'module';
 
@@ -30,12 +30,14 @@ function check(name, ok, detail = '') {
 
 async function newContext(browser, viewport, seed) {
   const ctx = await browser.newContext({ viewport, deviceScaleFactor: viewport.deviceScaleFactor ?? 1, isMobile: viewport.width < 500 });
-  // Seed localStorage BEFORE any page script runs
+  // Seed localStorage BEFORE any page script runs, on first load only (reloads keep real state)
   await ctx.addInitScript((s) => {
+    if (sessionStorage.getItem('__fg_seeded')) return;
     localStorage.clear();
     if (s) {
       for (const [k, v] of Object.entries(s)) localStorage.setItem(k, v);
     }
+    sessionStorage.setItem('__fg_seeded', '1');
   }, seed || null);
   return ctx;
 }
@@ -211,6 +213,97 @@ console.log('\n== MOBILE (390×844) ==\n');
   await page.screenshot({ path: '_test-05-hub-mobile.png' });
   const fatal = consoleErrors.filter((e) => !e.includes('WebGL') && !e.includes('favicon'));
   check('E2: no fatal console errors in hub', fatal.length === 0, fatal.slice(0, 2).join(' | '));
+  await ctx.close();
+}
+
+// ============ DEVICE EMULATION (per real-device checklist) ============
+console.log('\n== DEVICE EMULATION (iPhone / Android / tablet) ==\n');
+
+async function newDeviceContext(browser, deviceName, seed) {
+  const descriptor = devices[deviceName];
+  if (!descriptor) throw new Error(`Unknown device: ${deviceName}`);
+  const ctx = await browser.newContext({ ...descriptor });
+  await ctx.addInitScript((s) => {
+    if (sessionStorage.getItem('__fg_seeded')) return;
+    localStorage.clear();
+    if (s) {
+      for (const [k, v] of Object.entries(s)) localStorage.setItem(k, v);
+    }
+    sessionStorage.setItem('__fg_seeded', '1');
+  }, seed || null);
+  return ctx;
+}
+
+const DEVICE_NAMES = ['iPhone 13', 'Pixel 7', 'iPad (gen 7)'];
+
+for (const deviceName of DEVICE_NAMES) {
+  const ctx = await newDeviceContext(browser, deviceName, null);
+  const page = await ctx.newPage();
+  await page.goto(`${BASE}/?t=${Date.now()}`, { waitUntil: 'networkidle' });
+  await page.waitForSelector('#fg-welcome:not([hidden])', { timeout: 15000 });
+  check(`${deviceName}: welcome renders`, true);
+
+  // Tap target: primary join button ≥ 44px
+  const joinBox = await page.locator('#fg-join-btn').boundingBox();
+  check(`${deviceName}: join button ≥44px tall`, joinBox && joinBox.height >= 44, joinBox ? `${Math.round(joinBox.height)}px` : 'no box');
+  check(`${deviceName}: join button ≥44px wide`, joinBox && joinBox.width >= 44, joinBox ? `${Math.round(joinBox.width)}px` : 'no box');
+
+  // No horizontal overflow on welcome
+  const overWelcome = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  check(`${deviceName}: no horizontal overflow (welcome)`, overWelcome <= 0, `${overWelcome}px`);
+
+  // Join flow through the styled dialog
+  await page.click('#fg-join-btn');
+  await page.waitForSelector('#fg-name-dialog[open]', { timeout: 5000 });
+  await page.fill('#fg-name-input', 'Ruth');
+  await page.click('#fg-name-form button[type=submit]');
+  await page.waitForSelector('#fg-my-parish:not([hidden])', { timeout: 10000 });
+  check(`${deviceName}: join flow completes`, true);
+
+  // Meet date easy to find
+  const parishText = await page.locator('#fg-my-parish').innerText();
+  check(`${deviceName}: meet date visible on My Parish`, parishText.includes('August 28') && parishText.includes('7:30'), parishText.slice(0, 80));
+
+  // No horizontal overflow on My Parish
+  const overParish = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  check(`${deviceName}: no horizontal overflow (my-parish)`, overParish <= 0, `${overParish}px`);
+
+  // RSVP button tap target
+  const rsvpBox = await page.locator('#fg-rsvp-btn').boundingBox();
+  check(`${deviceName}: RSVP button ≥44px tall`, rsvpBox && rsvpBox.height >= 44, rsvpBox ? `${Math.round(rsvpBox.height)}px` : 'no box');
+
+  // State preservation on return (reload)
+  await page.reload({ waitUntil: 'networkidle' });
+  await page.waitForSelector('#fg-my-parish:not([hidden])', { timeout: 15000 });
+  const rsvpAfter = await page.locator('#fg-rsvp-btn').innerText();
+  check(`${deviceName}: reload keeps My Parish + RSVP`, rsvpAfter.includes('coming'), rsvpAfter);
+  const attendeesAfter = await page.locator('#fg-attendee-list').innerText();
+  check(`${deviceName}: attendee persists after reload`, attendeesAfter.includes('Ruth'), attendeesAfter.slice(0, 60));
+
+  await ctx.close();
+}
+
+// Hub entry on iPhone emulation (covers video/Hub entry on mobile)
+{
+  const seed = { 'fg-rsvp-v1': 'true', 'fg-rsvp-name': 'Ruth' };
+  const ctx = await newDeviceContext(browser, 'iPhone 13', seed);
+  const page = await ctx.newPage();
+  await page.goto(`${BASE}/?t=${Date.now()}`, { waitUntil: 'networkidle' });
+  await page.waitForSelector('#fg-enter-hub-btn', { timeout: 15000 });
+  await page.click('#fg-enter-hub-btn');
+  await page.waitForSelector('#game-container canvas', { timeout: 15000 });
+  check('iPhone 13: hub canvas mounts', true);
+  await page.waitForTimeout(2000);
+  await ctx.close();
+}
+
+// Zoom enabled (pinch-zoom meta)
+{
+  const ctx = await newContext(browser, MOBILE, null);
+  const page = await ctx.newPage();
+  await page.goto(`${BASE}/?t=${Date.now()}`, { waitUntil: 'networkidle' });
+  const meta = await page.evaluate(() => document.querySelector('meta[name=viewport]')?.getAttribute('content') || '');
+  check('pinch-zoom enabled (no user-scalable=no)', !meta.includes('user-scalable=no') && !meta.includes('maximum-scale=1'), meta);
   await ctx.close();
 }
 
