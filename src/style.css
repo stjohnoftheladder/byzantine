@@ -554,15 +554,16 @@ html, body {
 /* Attendee avatar — face crop via background-image on span */
 .fg-avatar {
   display: inline-block;
-  width: 20px;
-  height: 24px;
+  width: 24px;
+  height: 28px;
   background: url('/images/os_peer-sheet0.png') no-repeat;
   background-size: 128px 128px;
-  background-position: -4px -1px;
+  background-position: -6px -1px;
   image-rendering: pixelated;
   vertical-align: middle;
   margin-right: 8px;
   flex-shrink: 0;
+  filter: brightness(1.2) contrast(1.1);
 }
 
 /* Actions */
