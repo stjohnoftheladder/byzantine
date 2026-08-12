@@ -22,6 +22,7 @@ Established and working; evolve it, don't replace it:
 - **Pixel-art sprites** (existing `os_peer` character sheets) on DOM screens — not full canvas; the hub is Phaser
 - **Gold-bordered cards** with offset outline (border-image was tried and rendered grey — don't reintroduce it)
 - **Calm, large, one-question-per-screen** interactions
+- **Hub vision pass (implemented):** warm candle glows (`addGlow`), additive pools of candle-light on the floor, and a dark-gold camera vignette — dark-gold-lit and still readable
 
 ## 3. Design tokens (current, in `src/style.css`)
 
@@ -46,6 +47,8 @@ Established and working; evolve it, don't replace it:
 | Fonts available | `public/assets/fonts/`: PixelEmulator, SFPixelate, CyrillicPixel, Miludaland (Georgia serif used for headings) |
 | Framework | TypeScript + Vite + Phaser 4 (hub) — no new dependencies without checking with the developer |
 | PWA | Service worker network-first, cache `byzantine-v2`; manifest title "Fellowship Go" |
+| Hub art slots | **`src/hub-art/`** — drop-in PNGs, detected at build time: `hub-world.png` (portrait world bg, 480×854 or larger), `hub-floor-tile.png` (seamless square tile), `hub-candle.png` (single-frame candle). Missing files fall back to built-in placeholders; files must be committed (build-time detection) |
+| Hub lighting | **Additive warm light pools + `addGlow` accents + camera vignette** — NOT the v4 lights pipeline (dark floor textures multiply to near-black under a dark ambient; pools keep it readable) |
 
 ## 5. Screen inventory (all in `index.html`, styles in `src/style.css`)
 
@@ -62,11 +65,12 @@ Established and working; evolve it, don't replace it:
 | Video overlay | `#video-conversation` | 90s Daily.co call: timer, join/leave, status |
 | Points HUD | `#points-hud` | Top-right during hub |
 | Toast | `#toast` | System messages (points earned, etc.) |
+| Hub (Phaser) | `src/HubScene.ts` | 480×854 dark-gold-lit courtyard: stone floor (tile), 3 candles with glow + light pools, fountain, Ladder door, tap-to-move, sprite tap → player card |
 
 ## 6. Where design help is wanted (tonight's open questions)
 
 1. **Multi-parish home (mid-term):** when a second parish joins, first-open needs a clear parish picker + confirmation of *your* parish. Sketch options for one-tap pick + "is this you?" pattern.
-2. **Hub art (later):** Corey delivers replacement character art / idle animations for the courtyard (current = stand-in `os_peer` sprites). Keep 480×854 layout, tap-to-move, sprite tap → player card.
+2. **Hub art — mechanism done, awaiting your art:** the drop-in slots are live (see §4). Deliver `hub-world.png`, `hub-floor-tile.png`, `hub-candle.png` into `src/hub-art/` and they replace the placeholders automatically. Character art / idle animations for the courtyard is the remaining piece (current = stand-in `os_peer` sprites); keep 480×854 layout, tap-to-move, sprite tap → player card.
 3. **Empty & first-run states:** Fellowship list empty state, attendee list with one person, hub with nobody around — make these encouraging, not dead ends.
 4. **Iconography:** nav icons, meet-card icons, wave gesture — pixel-art set consistent with the sheets.
 5. **Fellowship points presentation:** how points are shown/celebrated (current: plain number HUD + toast) — make earning feel rewarding without gamifying beyond the calm tone.
@@ -76,7 +80,8 @@ Established and working; evolve it, don't replace it:
 - `index.html` — screen markup
 - `src/style.css` — all tokens + styling
 - `src/fellowship-go.ts` — DOM screen logic (labels, ordering)
-- `src/HubScene.ts` — hub layout, sprite placement
+- `src/HubScene.ts` — hub layout, sprite placement, lighting/filters
+- **`src/hub-art/` — your art drop-in folder** (see §4): `hub-world.png`, `hub-floor-tile.png`, `hub-candle.png`
 - `public/images/` + `public/assets/fonts/` — art assets
 
 ## 8. Running it
