@@ -13,8 +13,6 @@ jobs:
   frontend:
     name: Deploy frontend (Pages)
     runs-on: ubuntu-latest
-    # No-op (skip) until the Cloudflare secrets are added to the repo
-    if: ${{ secrets.CLOUDFLARE_API_TOKEN != '' && secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -30,6 +28,8 @@ jobs:
         run: npm run build
 
       - name: Deploy to Cloudflare Pages
+        # Skips (with a clear CI note) until the Cloudflare secrets are added
+        if: ${{ secrets.CLOUDFLARE_API_TOKEN != '' && secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -40,8 +40,6 @@ jobs:
   worker:
     name: Deploy multiplayer worker
     runs-on: ubuntu-latest
-    # No-op (skip) until the Cloudflare secrets are added to the repo
-    if: ${{ secrets.CLOUDFLARE_API_TOKEN != '' && secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -56,6 +54,8 @@ jobs:
         run: npm ci
 
       - name: Deploy worker
+        # Skips (with a clear CI note) until the Cloudflare secrets are added
+        if: ${{ secrets.CLOUDFLARE_API_TOKEN != '' && secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
