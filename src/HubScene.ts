@@ -20,6 +20,7 @@ import {
 } from './multiplayer/MultiplayerClient';
 import type { ByzantineSave } from './types';
 import { writeSave } from './save';
+import { getHubArtSlots } from './hub-art/slots';
 
 const WIDTH = 480;
 const HEIGHT = 854;
@@ -67,6 +68,13 @@ export class HubScene extends Phaser.Scene {
       this.load.image(sheet, `${ASSET_BASE}images/${sheet}.png`);
     }
     this.load.image('cursor', `${ASSET_BASE}images/os_cursor-sheet0.png`);
+
+    // Corey's art slots — only files that exist at build time are loaded;
+    // missing slots fall back to procedural placeholders in createCourtyard.
+    const art = getHubArtSlots();
+    if (art.world) this.load.image('hub-bg', art.world);
+    if (art.floor) this.load.image('hub-floor', art.floor);
+    if (art.candle) this.load.image('hub-candle', art.candle);
   }
 
   create(): void {
@@ -94,23 +102,24 @@ export class HubScene extends Phaser.Scene {
   // ---------------------------------------------------------------- courtyard
 
   private createCourtyard(): void {
-    // Simple courtyard: tiled floor with warm Byzantine tones
-    const graphics = this.add.graphics();
-    graphics.setDepth(-10);
+    const art = getHubArtSlots();
 
-    // Floor
-    graphics.fillStyle(0x3a2a1a, 1);
-    graphics.fillRect(0, 0, WIDTH, HEIGHT);
-
-    // Stone tile pattern
-    graphics.fillStyle(0x4a3828, 0.4);
-    for (let y = 0; y < HEIGHT; y += 64) {
-      for (let x = (y % 128 === 0 ? 0 : 32); x < WIDTH; x += 64) {
-        graphics.fillRect(x, y, 60, 60);
-      }
+    // Background: Corey's full world art, or a procedural stone floor.
+    if (art.world) {
+      this.add.image(WIDTH / 2, HEIGHT / 2, 'hub-bg').setDepth(-20);
+    } else {
+      if (!this.textures.exists('hub-floor')) this.createFloorTileTexture();
+      this.add
+        .tileSprite(0, 0, WIDTH, HEIGHT, this.textures.exists('hub-floor') ? 'hub-floor' : 'floor-stone')
+        .setOrigin(0)
+        .setDepth(-10);
     }
 
-    // Wall border top
+    // Walls + fountain overlay (drawn above the floor / world art)
+    const graphics = this.add.graphics();
+    graphics.setDepth(-9);
+
+    // Wall border top/bottom
     graphics.fillStyle(0x5a4a3a, 0.6);
     graphics.fillRect(0, 0, WIDTH, 8);
     graphics.fillRect(0, HEIGHT - 8, WIDTH, 8);
@@ -126,10 +135,11 @@ export class HubScene extends Phaser.Scene {
     graphics.fillStyle(0x8a6a4a, 0.3);
     graphics.fillCircle(WIDTH / 2, HEIGHT / 2, 30);
 
-    // Vision pass (Corey): warm candle-light in a dark courtyard — floor
-    // responds to light, pools of gold glow, and a dark-gold camera grade.
-    this.trySetLighting(graphics, true);
-    this.setupLights();
+    // Vision pass (Corey): warm candle-light pools, gold glow accents, and a
+    // dark-gold camera grade. (Lighting is additive pools rather than the
+    // v4 lights pipeline — dark floor textures multiply to near-black under
+    // a dark ambient, pools keep the floor readable while selling the mood.)
+    this.createLightPoolTexture();
     this.createCandle(70, 330);
     this.createCandle(WIDTH - 70, 330);
     this.createCandle(WIDTH / 2, HEIGHT - 170);
@@ -176,52 +186,103 @@ export class HubScene extends Phaser.Scene {
 
   // ------------------------------------------- vision: light & mood (Phaser 4)
 
-  /** Warm candle with a soft glow accent (v4 FilterList) and a pool of light. */
+  /** Warm candle: glow accent (v4 FilterList) + additive pool of light on the floor. */
   private createCandle(x: number, y: number): void {
-    const candle = this.add.graphics();
-    candle.fillStyle(0x8a7a5a, 0.9);
-    candle.fillRect(-4, -14, 8, 14); // wax body
-    candle.fillStyle(0xffcc66, 1);
-    candle.fillCircle(0, -18, 4); // flame
-    candle.setPosition(x, y).setDepth(4);
+    // Corey's candle sprite, or a procedural wax + flame placeholder
+    let candle: { filters?: Phaser.Types.GameObjects.FiltersInternalExternal | null };
+    if (this.textures.exists('hub-candle')) {
+      candle = this.add.image(x, y, 'hub-candle').setDepth(4);
+    } else {
+      const g = this.add.graphics();
+      g.fillStyle(0x8a7a5a, 0.9);
+      g.fillRect(-4, -14, 8, 14); // wax body
+      g.fillStyle(0xffcc66, 1);
+      g.fillCircle(0, -18, 4); // flame
+      g.setPosition(x, y).setDepth(4);
+      candle = g;
+    }
     try {
       candle.filters?.internal?.addGlow?.(0xffcc66, 3, 0, 1);
     } catch {
       /* glow is decorative */
     }
-    try {
-      this.lights?.addLight?.(x, y, 260, 0xffcc66, 0.8);
-    } catch {
-      /* lighting is optional */
+
+    // Warm pool of light on the floor beneath the candle (additive blend)
+    if (this.textures.exists('light-pool')) {
+      this.add
+        .image(x, y + 10, 'light-pool')
+        .setDepth(-9.5)
+        .setBlendMode(Phaser.BlendModes.ADD)
+        .setScale(0.9);
     }
   }
 
-  /** Enable the v4 lighting system: dark ambient + warm pools from candles. */
-  private setupLights(): void {
-    try {
-      if (this.lights) {
-        this.lights.enable();
-        this.lights.setAmbientColor(0x1a1410);
+  /**
+   * Procedural radial warm pool (256×256, transparent edges) used to fake
+   * candle-light on the floor with an additive blend — deterministic and
+   * readable, unlike the v4 lights pipeline on dark textures.
+   */
+  private createLightPoolTexture(): void {
+    if (this.textures.exists('light-pool')) return;
+    const tex = this.textures.createCanvas('light-pool', 256, 256);
+    if (!tex) return;
+    const ctx = tex.getContext();
+    const grad = ctx.createRadialGradient(128, 128, 8, 128, 128, 128);
+    grad.addColorStop(0, 'rgba(255,205,125,0.5)');
+    grad.addColorStop(0.35, 'rgba(255,185,95,0.24)');
+    grad.addColorStop(0.7, 'rgba(255,165,70,0.08)');
+    grad.addColorStop(1, 'rgba(255,150,60,0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 256, 256);
+    tex.update();
+  }
+
+  /**
+   * Procedural seamless stone floor tile (64×64). Placeholder until Corey's
+   * `hub-floor-tile.png` slot is provided — drop the file in src/hub-art/ and
+   * it replaces this automatically.
+   */
+  private createFloorTileTexture(): void {
+    if (this.textures.exists('floor-stone')) return;
+    const tex = this.textures.createCanvas('floor-stone', 64, 64);
+    if (!tex) return;
+    const ctx = tex.getContext();
+
+    // Dark warm base (bright enough to read under the vignette)
+    ctx.fillStyle = '#3d2b1a';
+    ctx.fillRect(0, 0, 64, 64);
+
+    // 32×32 stone cells — checkerboard shading, seamless when tiled
+    for (let cy = 0; cy < 2; cy++) {
+      for (let cx = 0; cx < 2; cx++) {
+        const n = cx + cy * 2;
+        ctx.fillStyle = n % 2 === 0 ? 'rgba(255,214,150,0.07)' : 'rgba(0,0,0,0.14)';
+        ctx.fillRect(cx * 32 + 1, cy * 32 + 1, 30, 30);
+        ctx.fillStyle = 'rgba(255,255,255,0.03)';
+        ctx.fillRect(cx * 32 + 1, cy * 32 + 1, 30, 2); // top highlight
       }
-    } catch {
-      /* lighting is optional */
     }
+
+    // Grout (drawn on all four edges so tiles line up seamlessly)
+    ctx.strokeStyle = 'rgba(0,0,0,0.45)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(0.5, 0.5, 63, 63);
+    ctx.beginPath();
+    ctx.moveTo(32, 0);
+    ctx.lineTo(32, 64);
+    ctx.moveTo(0, 32);
+    ctx.lineTo(64, 32);
+    ctx.stroke();
+
+    tex.update();
   }
 
   /** Camera-level dark-gold grade (v4 filters replace v3 postFX). */
   private applyMoodFilters(): void {
     try {
-      this.cameras.main.filters?.internal?.addVignette?.(0.5, 0.5, 0.75, 0.5, 0x1a1008);
+      this.cameras.main.filters?.internal?.addVignette?.(0.5, 0.5, 0.75, 0.45, 0x1a1008);
     } catch {
       /* mood grade is decorative */
-    }
-  }
-
-  private trySetLighting(obj: Phaser.GameObjects.GameObject, on: boolean): void {
-    try {
-      (obj as { setLighting?: (value: boolean) => void }).setLighting?.(on);
-    } catch {
-      /* lighting is optional */
     }
   }
 
