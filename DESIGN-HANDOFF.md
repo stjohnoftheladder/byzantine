@@ -99,6 +99,5 @@ npm test         # Playwright + axe-core — 61 checks, incl. iPhone/Android/tab
 
 ## 10. Reference material
 
-- Next-steps doc (pilot readiness): `../../.reasonix/attachments/clipboard-20260810-213726.725504-000008.md`
 - Architecture + deployment: `HANDOFF.md` (in this repo)
 - Test plan: `fg-tests.mjs` documents every covered flow
