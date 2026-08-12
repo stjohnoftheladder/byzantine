@@ -126,6 +126,15 @@ export class HubScene extends Phaser.Scene {
     graphics.fillStyle(0x8a6a4a, 0.3);
     graphics.fillCircle(WIDTH / 2, HEIGHT / 2, 30);
 
+    // Vision pass (Corey): warm candle-light in a dark courtyard — floor
+    // responds to light, pools of gold glow, and a dark-gold camera grade.
+    this.trySetLighting(graphics, true);
+    this.setupLights();
+    this.createCandle(70, 330);
+    this.createCandle(WIDTH - 70, 330);
+    this.createCandle(WIDTH / 2, HEIGHT - 170);
+    this.applyMoodFilters();
+
     // Title label
     this.add
       .text(WIDTH / 2, 24, 'Ss. George & Alexandria', {
@@ -163,6 +172,57 @@ export class HubScene extends Phaser.Scene {
       // Phase 6: transition to Ladder scene
       this.scene.start('Ladder', { save: this.save });
     });
+  }
+
+  // ------------------------------------------- vision: light & mood (Phaser 4)
+
+  /** Warm candle with a soft glow accent (v4 FilterList) and a pool of light. */
+  private createCandle(x: number, y: number): void {
+    const candle = this.add.graphics();
+    candle.fillStyle(0x8a7a5a, 0.9);
+    candle.fillRect(-4, -14, 8, 14); // wax body
+    candle.fillStyle(0xffcc66, 1);
+    candle.fillCircle(0, -18, 4); // flame
+    candle.setPosition(x, y).setDepth(4);
+    try {
+      candle.filters?.internal?.addGlow?.(0xffcc66, 3, 0, 1);
+    } catch {
+      /* glow is decorative */
+    }
+    try {
+      this.lights?.addLight?.(x, y, 260, 0xffcc66, 0.8);
+    } catch {
+      /* lighting is optional */
+    }
+  }
+
+  /** Enable the v4 lighting system: dark ambient + warm pools from candles. */
+  private setupLights(): void {
+    try {
+      if (this.lights) {
+        this.lights.enable();
+        this.lights.setAmbientColor(0x1a1410);
+      }
+    } catch {
+      /* lighting is optional */
+    }
+  }
+
+  /** Camera-level dark-gold grade (v4 filters replace v3 postFX). */
+  private applyMoodFilters(): void {
+    try {
+      this.cameras.main.filters?.internal?.addVignette?.(0.5, 0.5, 0.75, 0.5, 0x1a1008);
+    } catch {
+      /* mood grade is decorative */
+    }
+  }
+
+  private trySetLighting(obj: Phaser.GameObjects.GameObject, on: boolean): void {
+    try {
+      (obj as { setLighting?: (value: boolean) => void }).setLighting?.(on);
+    } catch {
+      /* lighting is optional */
+    }
   }
 
   // ---------------------------------------------------------------- player
