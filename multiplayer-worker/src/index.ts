@@ -22,6 +22,8 @@ const ALLOWED_ORIGINS = new Set(['https://stjohnoftheladder.github.io', 'https:/
 interface WorkerEnv extends Env {
   DAILY_API_KEY?: string;
   DAILY_SUBDOMAIN?: string;
+  // Optional custom-domain origin (added via dashboard var or `wrangler secret put`), no code change needed
+  ALLOWED_ORIGIN_EXTRA?: string;
 }
 
 type Facing = 'up' | 'down' | 'left' | 'right';
@@ -107,7 +109,7 @@ const json = (value: unknown, init?: ResponseInit): Response => Response.json(va
   headers: { 'cache-control': 'no-store', ...init?.headers },
 });
 
-const isAllowedOrigin = (request: Request): boolean => {
+const isAllowedOrigin = (request: Request, env: Env): boolean => {
   const origin = request.headers.get('Origin');
   if (origin === null) return false;
   if (ALLOWED_ORIGINS.has(origin)) return true;
@@ -115,6 +117,9 @@ const isAllowedOrigin = (request: Request): boolean => {
     const url = new URL(origin);
     // Allow any Cloudflare Pages deployment subdomain for byzantine
     if (url.hostname.endsWith('.byzantine-2yy.pages.dev')) return true;
+    // Mid-term: a custom domain is added as a Worker variable (no code change),
+    // e.g. `wrangler secret put ALLOWED_ORIGIN_EXTRA` → "https://fellowshipgo.org"
+    if (env.ALLOWED_ORIGIN_EXTRA && origin === env.ALLOWED_ORIGIN_EXTRA) return true;
     return url.protocol === 'http:' && (url.hostname === '127.0.0.1' || url.hostname === 'localhost');
   } catch {
     return false;
@@ -138,7 +143,7 @@ export default {
     if (request.headers.get('Upgrade')?.toLowerCase() !== 'websocket') {
       return new Response('Expected a WebSocket upgrade', { status: 426 });
     }
-    if (!isAllowedOrigin(request)) return new Response('Origin not allowed', { status: 403 });
+    if (!isAllowedOrigin(request, env)) return new Response('Origin not allowed', { status: 403 });
     return env.PILGRIM_ROOMS.getByName('byzantine-hub-v1').fetch(request);
   },
 } satisfies ExportedHandler<WorkerEnv>;
