@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Test suite (61 checks)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Build
+        run: npm run build
+
+      - name: Serve preview build and run test suite
+        run: |
+          npx vite preview --port 5173 --host 127.0.0.1 --strictPort > /tmp/preview.log 2>&1 &
+          PREVIEW_PID=$!
+          trap 'kill $PREVIEW_PID 2>/dev/null || true' EXIT
+          for i in $(seq 1 30); do
+            if curl -sf http://127.0.0.1:5173 > /dev/null 2>&1; then break; fi
+            sleep 1
+          done
+          curl -sf http://127.0.0.1:5173 > /dev/null || { echo "preview server failed to start"; cat /tmp/preview.log; exit 1; }
+          node fg-tests.mjs http://127.0.0.1:5173

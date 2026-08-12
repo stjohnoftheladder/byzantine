@@ -15,7 +15,7 @@ import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 const axeSource = readFileSync(require.resolve('axe-core/axe.min.js'), 'utf8');
 
-const BASE = process.argv[2] || 'https://64810bb0.byzantine-2yy.pages.dev';
+const BASE = process.argv[2] || 'https://byzantine-2yy.pages.dev';
 const MOBILE = { width: 390, height: 844, deviceScaleFactor: 2 };
 const DESKTOP = { width: 1280, height: 800 };
 

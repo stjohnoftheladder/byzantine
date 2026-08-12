@@ -9,9 +9,9 @@ hard constraints, open questions).
 
 1. **Branch, don't push to main.** `main` is the live app — every merge deploys.
 2. **Keep the constraints** from `DESIGN-HANDOFF.md` (480×854 canvas, 44px touch
-   targets, WCAG AA contrast, gold-on-dark palette). The automated test suite
-   checks these — if it fails, it's a real accessibility/UX regression, not a
-   nitpick.
+   targets, WCAG AA contrast, gold-on-dark palette). CI runs the full 61-check
+   suite on every PR — if it fails, it's a real accessibility/UX regression,
+   not a nitpick.
 3. **One screen per PR** — easier to review and safer to roll back.
 
 ## Option A — edit in the browser (recommended, zero setup)
